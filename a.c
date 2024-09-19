@@ -1,23 +1,27 @@
 #include "mpi.h"
+#include <string.h>
 #include <stdio.h>
 
+
 int main(int argc, char *argv[]) {
-    MPI_Init(&argc, &argv);
 
-    int numprocs;
-    MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
-    printf("\nNumero total de processos: %d", numprocs);
+    FILE *fp = fopen("spotify_millsongdata.csv", "r");
 
-    int myid;
-    MPI_Comm_rank(MPI_COMM_WORLD, &myid);
-    printf("\nMeu id: %d\n", myid);
-
-    if (myid == 0) {
-        printf("\n\nMestre rodando id: %d\n\n", myid);
-    } else {
-        printf("\n\nEscravo rodando id: %d\n\n", myid);
+    if (!fp) {
+        printf("Não consegui abrir o arquivo\n");
+        return 1;
     }
 
-    MPI_Finalize();
+    char buffer[50000];
+
+
+    while (fgets(buffer, 50000, fp)) {
+        const char* tok;
+        for (tok = strtok(buffer, ","); tok && *tok; tok = strtok(NULL, ",\n")) {
+            printf("%s\n", tok);
+        }
+    }
+
+    fclose(fp);
     return 0;
 }
